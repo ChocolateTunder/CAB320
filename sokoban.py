@@ -191,7 +191,7 @@ if __name__ == "__main__":
         i = i + 2
     """
     wh = Warehouse()
-    wh.load_warehouse("./warehouses/warehouse_01.txt")
+    wh.load_warehouse("./warehouses/warehouse_99.txt")
 #    field.save_warehouse("./F_01.txt")
 
     print(wh)   # this calls    wh.__str__()
