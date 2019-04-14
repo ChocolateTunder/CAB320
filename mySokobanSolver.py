@@ -21,7 +21,7 @@ SokobanPuzzle.macro = False
 # you have to use the 'search.py' file provided
 # as your code will be tested with this specific file
 import search
-import re
+
 import sokoban
 
 
@@ -78,7 +78,11 @@ def taboo_cells(warehouse):
     "Begin taboo code"
     row = []
     column = []
+    started = False
+    inside = [[False] * x_size for y in range(y_size)]
     i = 0
+    
+    "Creates a list with coordinates of empty squares"
     for line in vis:
         j = 0
         for place in line:
@@ -88,28 +92,62 @@ def taboo_cells(warehouse):
             j += 1
         i += 1
         
+    "Checks if squares are within warehouse walls"
+    "2 run throughs seems to tag everything"
+    for i in range(0,2):
+        for x in range(max(X)):
+            for y in range(max(Y)):
+                "Tag first top left corner as inside"
+                if (vis[y-1][x] == "#" and vis[y][x-1] == "#" and \
+                started == False):
+                    started = True
+                    inside[y][x] = True
+                "Targets are assumed to be inside"
+                if vis[y][x] == ".":
+                    inside[y][x] = True
+                "Check if surroundings are inside"
+                if vis[y][x] != "#":
+                    if(inside[y-1][x] == True or \
+                       inside[y][x-1] == True or \
+                       inside[y+1][x] == True or \
+                       inside[y][x+1] == True or inside[y-1][x-1] == True or \
+                       inside[y-1][x+1] == True or inside[y+1][x-1] == True or \
+                       inside[y+1][x+1] == True):
+                        inside[y][x] = True
+        i += 1
+        
     for i in row:
         for j in column:
             if vis[i][j] == " ": 
                 "Check if space is a corner"
                 if (vis[i-1][j] == "#" or vis[i+1][j] == "#") and \
-                    (vis[i][j-1] == "#" or vis[i][j+1] == "#"):
+                    (vis[i][j-1] == "#" or vis[i][j+1] == "#") and \
+                     inside[i][j] == True:
                      vis[i][j] = "X"
                 "Check if at end of tunnel"
                 if (((vis[i-1][j] == "#" and vis[i+1][j] == "#") and \
                      (vis[i][j-1] == "#" or vis[i][j+1] == "#")) or \
                    ((vis[i][j-1] == "#" and vis[i][j+1] == "#")) and \
-                    (vis[i+1][j] == "#" or vis[i-1][j] == "#")):
+                    (vis[i+1][j] == "#" or vis[i-1][j] == "#") and \
+                     inside[i][j] == True):
                      vis[i][j] = "X"
                      
+    "Have to blank out targets in other loop or it doesn't work"                 
     for i in row:
         for j in column:
             if vis[i][j] == ".":
                 vis[i][j] = " "    
+    """
+    'Test to see if all cells are tagged as inside'                
+    for i in row:
+        for j in column:
+            if inside[i][j] == True:
+                vis[i][j] = "O"
+    """
+    
     """use vis = "\n".join(["".join(line) for line in vis]) and print vis"""
     "To get rid of literal /n in string"            
     return "\n".join(["".join(line) for line in vis])
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
