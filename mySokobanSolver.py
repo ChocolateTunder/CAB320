@@ -254,10 +254,81 @@ def check_action_seq(warehouse, action_seq):
     '''
     
     ##         "INSERT YOUR CODE HERE"
-    
-    raise NotImplementedError()
-
-
+    for action in action_seq:
+        if action == 'Left':
+            #"Check if there's a box to the left"
+            if ((warehouse.worker[0] - 1), (warehouse.worker[1])) in warehouse.boxes:
+                #"Check if there's a box or wall to the left of that box"
+                if ((warehouse.worker[0] - 2, warehouse.worker[1]) in warehouse.boxes) or \
+                    ((warehouse.worker[0] - 2, warehouse.worker[1]) in warehouse.walls):
+                        return "Failure"
+                #"If there's empty space, move box and worker"
+                else:
+                    index = (warehouse.boxes).index((warehouse.worker[0]-1, warehouse.worker[1])) 
+                    warehouse.boxes[index] = (warehouse.worker[0]-2, warehouse.worker[1])
+                    warehouse.worker = (warehouse.worker[0]-1, warehouse.worker[1])
+            #Check if there's a wall
+            elif (warehouse.worker[0]-1, warehouse.worker[1]) in warehouse.walls:
+                warehouse.worker = (warehouse.worker[0], warehouse.worker[1])
+            #"If it's just empty space, move worker to left"
+            else:
+                warehouse.worker = (warehouse.worker[0]-1, warehouse.worker[1])
+        if action == 'Right':
+            #"Check if there's a box to the right"
+            if ((warehouse.worker[0] + 1), (warehouse.worker[1])) in warehouse.boxes:
+                #"Check if there's a box or wall to the right of that box"
+                if ((warehouse.worker[0] + 2, warehouse.worker[1]) in warehouse.boxes) or \
+                    ((warehouse.worker[0] + 2, warehouse.worker[1]) in warehouse.walls):
+                        return "Failure"
+                #"If there's empty space, move box and worker"
+                else:
+                    index = (warehouse.boxes).index((warehouse.worker[0] + 1, warehouse.worker[1])) 
+                    warehouse.boxes[index] = (warehouse.worker[0] + 2, warehouse.worker[1])
+                    warehouse.worker = (warehouse.worker[0] + 1, warehouse.worker[1])
+            #Check if there's a wall
+            elif (warehouse.worker[0]+1, warehouse.worker[1]) in warehouse.walls:
+                warehouse.worker = (warehouse.worker[0], warehouse.worker[1])
+            #"If it's just empty space, move worker to left"
+            else:
+                warehouse.worker = (warehouse.worker[0]+1, warehouse.worker[1])
+        if action == 'Up':
+            #"Check if there's a box above the worker"
+            if ((warehouse.worker[0]), (warehouse.worker[1] - 1)) in warehouse.boxes:
+                #"Check if there's a box or wall above that box"
+                if (warehouse.worker[0], warehouse.worker[1] - 2) in warehouse.boxes or \
+                    (warehouse.worker[0], warehouse.worker[1] - 2) in warehouse.walls:
+                        return "Failure"
+                #"If there's empty space, move box and worker"
+                else:
+                    index = (warehouse.boxes).index((warehouse.worker[0], warehouse.worker[1] - 1))
+                    warehouse.boxes[index] = (warehouse.worker[0], warehouse.worker[1] - 2)
+                    warehouse.worker = (warehouse.worker[0], warehouse.worker[1] - 1)
+            #Check if there's a wall
+            elif (warehouse.worker[0], warehouse.worker[1]-1) in warehouse.walls:
+                warehouse.worker = (warehouse.worker[0], warehouse.worker[1])
+            #"If it's just empty space, move worker to left"
+            else:
+                warehouse.worker = (warehouse.worker[0], warehouse.worker[1]-1)
+        if action == 'Down':
+            #"Check if there's a box above the worker"
+            if ((warehouse.worker[0]), (warehouse.worker[1] + 1)) in warehouse.boxes:
+                #"Check if there's a box or wall above that box"
+                if (warehouse.worker[0], warehouse.worker[1] + 2) in warehouse.boxes or \
+                    (warehouse.worker[0], warehouse.worker[1] + 2) in warehouse.walls:
+                        return "Failure"
+                #"If there's empty space, move box and worker"
+                else:
+                    index = (warehouse.boxes).index((warehouse.worker[0], warehouse.worker[1] + 1))
+                    warehouse.boxes[index] = (warehouse.worker[0], warehouse.worker[1] + 2)
+                    warehouse.worker = (warehouse.worker[0], warehouse.worker[1] + 1)
+            #Check if there's a wall
+            elif (warehouse.worker[0], warehouse.worker[1]+1) in warehouse.walls:
+                warehouse.worker = (warehouse.worker[0], warehouse.worker[1])
+            #"If it's just empty space, move worker to left"
+            else:
+                warehouse.worker = (warehouse.worker[0], warehouse.worker[1]+1)
+                
+    return warehouse.__str__()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def solve_sokoban_elem(warehouse):

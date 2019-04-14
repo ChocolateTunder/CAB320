@@ -14,7 +14,7 @@ Make sure that your code runs without errors with this script.
 
 from sokoban import Warehouse
 
-from mySokobanSolver import my_team, taboo_cells#, SokobanPuzzle, check_action_seq
+from mySokobanSolver import my_team, taboo_cells, check_action_seq#, SokobanPuzzle, check_action_seq
 #from mySokobanSolver import solve_sokoban_elem, can_go_there, solve_sokoban_macro 
 
 #from fredSokobanSolver import my_team, taboo_cells, SokobanPuzzle, check_action_seq
