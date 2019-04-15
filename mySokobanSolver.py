@@ -532,8 +532,6 @@ def check_action_seq(warehouse, action_seq):
                the sequence of actions.  This must be the same string as the
                string returned by the method  Warehouse.__str__()
     '''
-    
-    ##         "INSERT YOUR CODE HERE"
     for action in action_seq:
         if action == 'Left':
             #"Check if there's a box to the left"
@@ -549,7 +547,7 @@ def check_action_seq(warehouse, action_seq):
                     warehouse.worker = (warehouse.worker[0]-1, warehouse.worker[1])
             #Check if there's a wall
             elif (warehouse.worker[0]-1, warehouse.worker[1]) in warehouse.walls:
-                warehouse.worker = (warehouse.worker[0], warehouse.worker[1])
+                return "Failure"
             #"If it's just empty space, move worker to left"
             else:
                 warehouse.worker = (warehouse.worker[0]-1, warehouse.worker[1])
@@ -567,7 +565,7 @@ def check_action_seq(warehouse, action_seq):
                     warehouse.worker = (warehouse.worker[0] + 1, warehouse.worker[1])
             #Check if there's a wall
             elif (warehouse.worker[0]+1, warehouse.worker[1]) in warehouse.walls:
-                warehouse.worker = (warehouse.worker[0], warehouse.worker[1])
+                return "Failure"
             #"If it's just empty space, move worker to left"
             else:
                 warehouse.worker = (warehouse.worker[0]+1, warehouse.worker[1])
@@ -585,7 +583,7 @@ def check_action_seq(warehouse, action_seq):
                     warehouse.worker = (warehouse.worker[0], warehouse.worker[1] - 1)
             #Check if there's a wall
             elif (warehouse.worker[0], warehouse.worker[1]-1) in warehouse.walls:
-                warehouse.worker = (warehouse.worker[0], warehouse.worker[1])
+                return "Failure"
             #"If it's just empty space, move worker to left"
             else:
                 warehouse.worker = (warehouse.worker[0], warehouse.worker[1]-1)
@@ -603,7 +601,7 @@ def check_action_seq(warehouse, action_seq):
                     warehouse.worker = (warehouse.worker[0], warehouse.worker[1] + 1)
             #Check if there's a wall
             elif (warehouse.worker[0], warehouse.worker[1]+1) in warehouse.walls:
-                warehouse.worker = (warehouse.worker[0], warehouse.worker[1])
+                return "Failure"
             #"If it's just empty space, move worker to left"
             else:
                 warehouse.worker = (warehouse.worker[0], warehouse.worker[1]+1)
