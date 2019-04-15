@@ -39,7 +39,108 @@ def my_team():
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#This class represents a directed graph  
+# using adjacency list representation 
+class Graph: 
+    
+    paths = []
+    
+    def __init__(self,vertices): 
+        #No. of vertices 
+        self.V= vertices  
+          
+        # default dictionary to store graph 
+        self.graph = defaultdict(list)  
+   
+    # function to add an edge to graph 
+    def addEdge(self,u,v): 
+        self.graph[u].append(v) 
+   
+    '''A recursive function to print all paths from 'u' to 'd'. 
+    visited[] keeps track of vertices in current path. 
+    path[] stores actual vertices and path_index is current 
+    index in path[]'''
+    def printAllPathsUtil(self, u, d, visited, path): 
+  
+        # Mark the current node as visited and store in path 
+        visited.append(u)
+        path.append(u) 
+        
+        # If current vertex is same as destination, then print 
+        # current path[] 
+        if u == d: 
+            self.paths.append(path)
+        else: 
+            # If current vertex is not destination 
+            #Recur for all the vertices adjacent to this vertex 
+            for i in self.graph[u]: 
+                if visited[i]==False: 
+                    self.printAllPathsUtil(i, d, visited, path) 
+                      
+        # Remove current vertex from path[] and mark it as unvisited 
+        path.pop() 
+        visited.remove(u)
+        
+   
+   
+    # Prints all paths from 's' to 'd' 
+    def printAllPaths(self,s, d): 
+  
+        # Mark all the vertices as not visited 
+        visited =[False]*(self.V) 
+  
+        # Create an array to store paths 
+        path = [] 
+  
+        # Call the recursive helper function to print all paths 
+        self.printAllPathsUtil(s, d,visited, path) 
+   
+   
 
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+""" Search overrides for can_go_there() function """
+
+
+def graph_search_subfunc(problem, frontier, goal_coords):
+    """
+    Search through the successors of a problem to find a goal.
+    The argument frontier should be an empty queue.
+    If two paths reach a state, only use the first one. [Fig. 3.7]
+    Return
+        the node of the first goal state found
+        or None is no goal state is found
+    """
+    paths = []
+    assert isinstance(problem, Problem)
+    frontier.append(search.Node(problem.initial))
+    explored = set() # initial empty set of explored states
+    i = 0
+    while frontier and i < 200:
+        node = frontier.pop()
+        if problem.goal_test(node.state, goal_coords):
+            paths.append(node)
+            frontier.clear()
+            frontier.append(search.Node(problem.initial))
+        explored.add(node.state)
+        # Python note: next line uses of a generator
+        frontier.extend(child for child in node.expand(problem)
+                        if child.state not in explored
+                        and child not in frontier)
+        i = i + 1
+    if paths:
+        return paths
+    else:
+        return None
+
+
+def breadth_first_graph_search_subfunc(problem, goal_coords):
+    "Graph search version of BFS.  [Fig. 3.11]"
+    return graph_search_subfunc(problem, search.FIFOQueue(), goal_coords)
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
 def taboo_cells(warehouse):
     '''  
     Identify the taboo cells of a warehouse. A cell inside a warehouse is 
@@ -225,6 +326,185 @@ class SokobanPuzzle(search.Problem):
         'self.allow_taboo_push' and 'self.macro' should be tested to determine
         what type of list of actions is to be returned.
         """
+        
+        taboo_map = taboo_cells(state)
+        # Get list of taboo cell locations
+        taboo = list(sokoban.find_2D_iterator(taboo_map, "X")) # taboo cell
+        
+        # Get list of box locations
+        boxes = state.boxes
+        
+        # Get location of worker
+        worker = state.worker
+        
+        # Get locations of walls
+        walls = state.walls
+        
+        nexto_boxes = []
+        abv_bel_boxes = []
+        
+        actions = []
+        no_up = False
+        no_down = False
+        no_left = False
+        no_right = False
+        
+    
+        # Test for adjacent boxes
+        for i in range(0, len(boxes)):
+            # Test box next to worker
+            if abs(boxes[i][0] - worker[0]) == 1:
+                nexto_boxes.append(boxes[i])
+            # Test box above or below worker
+            elif abs(boxes[i][1] - worker[1]) == 1:
+                abv_bel_boxes.append(boxes[i])
+        
+
+        # Test if any boxes above or below
+        if abv_bel_boxes:
+            for i in range(0, len(abv_bel_boxes)):
+                # Box above
+                if (abv_bel_boxes[i][1] < worker[1]):
+                    # Test taboo cell above box
+                    for j in range(0 , len(taboo)):
+                        # find correct x coordinate and test if directly above
+                        if abv_bel_boxes[i][0] == taboo[j][0] and abv_bel_boxes[i][1] - 1 == taboo[j][1]:
+                            # Test internal variable
+                            if self.allow_taboo_push == False:
+                                no_up = True
+                            else:
+                                no_up = False
+                    # test wall directly above box
+                    for j in range(0, len(walls)):
+                        # Test wall directly above box
+                        if abv_bel_boxes[i][1] - 1 == walls[j][1] and abv_bel_boxes[i][0] == walls[j][0]:
+                            no_up = True
+                            
+                    # Test if another box above current box
+                    for j in range(0, len(boxes)):
+                        if abv_bel_boxes[i][1] - 1 == boxes[j][1] and abv_bel_boxes[i][0] == boxes[j][0]:
+                            no_up = True
+                            
+                        
+                # Test box below worker
+                elif abv_bel_boxes[i][1] > worker[1]:
+                    for j in range(0 , len(taboo)):
+                        # find correct x coordinate and test if directly below
+                        if abv_bel_boxes[i][0] == taboo[j][0] and abv_bel_boxes[i][1] + 1 == taboo[j][1]:
+                            # Test internal variable
+                            if self.allow_taboo_push == False:
+                                no_down = True
+                            else:
+                                no_down = False
+                    # Test if box directly above wall
+                    for j in range(0, len(walls)):
+                        if abv_bel_boxes[i][1] + 1 == walls[j][1] and abv_bel_boxes[i][0] == walls[j][0]:
+                            no_down = True
+                    # Test if box directly above another box
+                    for j in range(0, len(boxes)):
+                        if abv_bel_boxes[i][1] + 1 == boxes[j][1] and abv_bel_boxes[i][0] ==  boxes[j][0]:
+                            no_down = True
+                    
+                    
+                
+        # If there are any adjacent boxes
+        if nexto_boxes:
+            for i in range(0, len(nexto_boxes)):
+                # Test box to the left of worker
+                if (nexto_boxes[i][0] < worker[0]):
+                    # Test taboo cell to the left of box
+                    for j in range(0, len(taboo)):
+                        # Find correct y coordinate and test if directly to the left of box
+                        if nexto_boxes[i][1] == taboo[j][1] and nexto_boxes[i][0] - 1 == taboo[j][0]:
+                            # Test internal taboo variable
+                            if self.allow_taboo_push == False:
+                                no_left = True
+                            else:
+                                no_left = False
+                    # Test if wall directly to left of box
+                    for j in range(0, len(walls)):
+                        if nexto_boxes[i][0] - 1 == walls[j][0] and nexto_boxes[i][1] == walls[j][1]:
+                            no_right = True 
+                    # Test if another box directly to left of box
+                    for j in range(0, len(boxes)):
+                        if nexto_boxes[i][0] - 1 == boxes[j][0] and nexto_boxes[i][1] == boxes[j][1]:
+                            no_right = True
+                            
+                # Test box to the right of worker
+                elif nexto_boxes[i][0] > worker[0]:
+                    # Test taboo cell to the right of the box
+                    for j in range(0, len(taboo)):
+                        # Find correct y coordinate and test if directly to the right of box
+                        if nexto_boxes[i][1] == taboo[j][1] and nexto_boxes[i][0] + 1 == taboo[j][0]:
+                            # test internal taboo variable
+                            if self.allow_taboo_push == False:
+                                no_right = True
+                            else:
+                                no_right = False
+                    # Test if wall directly to right of box
+                    for j in range(0, len(walls)):
+                        if nexto_boxes[i][0] + 1 == walls[j][0] and nexto_boxes[i][1] == walls[j][1]:
+                            no_down = True
+                    # Test if another box directly to the right of the box
+                    for j in range(0, len(walls)):
+                        if nexto_boxes[i][0] + 1 == boxes[j][0] and nexto_boxes[i][1] == boxes[j][1]:
+                            no_down = True
+        
+        # Test worker next to wall
+        for i in range(0, len(walls)):
+            # test if worker to the left of a wall
+            if worker[0] - 1 == walls[i][0] and worker[1] == walls[i][1]:
+                no_right = True
+            # Test worker to the right of a wall
+            if worker[0] + 1 == walls[i][0] and worker[1] == walls[i][1]:
+                no_left = True
+            # Test if worker below wall
+            if worker[1] - 1 == walls[i][1] and worker[0] == walls[i][0]:
+                no_up = True
+            # Test if worker above wall
+            if worker[1] + 1 == walls[i][1] and worker[0] == walls[i][0]:
+                no_down = True
+                
+        
+        if no_up == False:
+            actions.append("up")
+        if no_down == False:
+            actions.append("down")
+        if no_right == False:
+            actions.append("right")
+        if no_left == False:
+           actions.append("left")
+           
+        return actions        
+        
+        
+    def result(self, state, action):
+        """Return the state that results from executing the given
+        action in the given state. The action must be one of
+        self.actions(state)."""
+        raise NotImplementedError
+         
+        
+    def goal_test(self, state, goal_coords = None):
+        """Return True if the state is a goal. The default method compares the
+        state to self.goal, as specified in the constructor. Override this
+        method if checking against a single self.goal is not enough."""
+        if goal_coords:
+            return state.worker == goal_coords
+        else:
+            return state == self.goal
+
+    def path_cost(self, c, state1, action, state2):
+        """Return the cost of a solution path that arrives at state2 from
+        state1 via action, assuming cost c to get up to state1. If the problem
+        is such that the path doesn't matter, this function will only look at
+        state2.  If the path does matter, it will consider c and maybe state1
+        and action. The default method costs 1 for every step in the path."""
+        return c + 1
+
+    def value(self, state):
+        """For optimization problems, each state has a value.  Hill-climbing
+        and related algorithms try to maximize this value."""
         raise NotImplementedError
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -364,10 +644,39 @@ def can_go_there(warehouse, dst):
       False otherwise
     '''
     
+    
     ##         "INSERT YOUR CODE HERE"
     
-    raise NotImplementedError()
+    # Call calculate_path for warehouses and store in variable
+    
+    path_options = calculate_path(warehouse, dst)
+    valid_paths = []
+    is_failure = False
+    # loop through path options and check legality, then check if boxes moved
+    for path in path_options :
+        for box in warehouse.boxes :
+            if path == box:
+                is_failure = True
+        if is_failure == False:
+            valid_paths.append(path)
+        is_failure = False    
+        
+    if valid_paths  :
+        return True
+    else :
+        return False
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+def calculate_path(warehouse, dst):
+    '''
+    Calculate all path options of worker to destination
+    
+    Return list of elementary actions needed for each path
+    
+    Return false if no paths available
+    ''' 
+    return breadth_first_graph_search_subfunc(warehouse, dst)
+        
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def solve_sokoban_macro(warehouse):
