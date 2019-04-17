@@ -14,7 +14,9 @@ Make sure that your code runs without errors with this script.
 
 from sokoban import Warehouse
 
-from mySokobanSolver import my_team, taboo_cells#, SokobanPuzzle, check_action_seq
+import search
+
+from mySokobanSolver import my_team, taboo_cells, check_action_seq, solve_sokoban_elem #can_go_there#, SokobanPuzzle, check_action_seq
 #from mySokobanSolver import solve_sokoban_elem, can_go_there, solve_sokoban_macro 
 
 #from fredSokobanSolver import my_team, taboo_cells, SokobanPuzzle, check_action_seq
@@ -67,11 +69,14 @@ def test_check_elem_action_seq():
 
 
 def test_solve_sokoban_elem():
+    print("function started")
     puzzle_t1 ='#######\n#@ $. #\n#######'
     wh = Warehouse()    
     wh.extract_locations(puzzle_t1.split(sep='\n'))
+    print("first test")
     # first test
     answer = solve_sokoban_elem(wh)
+    print("first test run")
     expected_answer = ['Right', 'Right']
     fcn = test_solve_sokoban_elem
     print('<<  First test of {} >>'.format(fcn.__name__))
@@ -147,7 +152,7 @@ if __name__ == "__main__":
     print(my_team())  # should print your team
 
     test_taboo_cells() 
-#    test_check_elem_action_seq()
-#    test_solve_sokoban_elem()
-#    test_can_go_there()
+    test_check_elem_action_seq()
+    test_solve_sokoban_elem()
+   # test_can_go_there()
 #    test_solve_sokoban_macro()   

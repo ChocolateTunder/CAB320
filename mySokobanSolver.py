@@ -38,6 +38,64 @@ def my_team():
     return [ (9683836, 'Rafael', 'Alves'), (9935100, 'Sophie', 'Rogers') ]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+   
+#This class represents a directed graph  
+# using adjacency list representation 
+class Graph: 
+    
+    paths = []
+    
+    def __init__(self,vertices): 
+        #No. of vertices 
+        self.V= vertices  
+          
+        # default dictionary to store graph 
+        self.graph = defaultdict(list)  
+   
+    # function to add an edge to graph 
+    def addEdge(self,u,v): 
+        self.graph[u].append(v) 
+   
+    '''A recursive function to print all paths from 'u' to 'd'. 
+    visited[] keeps track of vertices in current path. 
+    path[] stores actual vertices and path_index is current 
+    index in path[]'''
+    def printAllPathsUtil(self, u, d, visited, path): 
+  
+        # Mark the current node as visited and store in path 
+        visited.append(u)
+        path.append(u) 
+        
+        # If current vertex is same as destination, then print 
+        # current path[] 
+        if u == d: 
+            self.paths.append(path)
+        else: 
+            # If current vertex is not destination 
+            #Recur for all the vertices adjacent to this vertex 
+            for i in self.graph[u]: 
+                if visited[i]==False: 
+                    self.printAllPathsUtil(i, d, visited, path) 
+                      
+        # Remove current vertex from path[] and mark it as unvisited 
+        path.pop() 
+        visited.remove(u)
+        
+   
+   
+    # Prints all paths from 's' to 'd' 
+    def printAllPaths(self,s, d): 
+  
+        # Mark all the vertices as not visited 
+        visited =[False]*(self.V) 
+  
+        # Create an array to store paths 
+        path = [] 
+  
+        # Call the recursive helper function to print all paths 
+        self.printAllPathsUtil(s, d,visited, path) 
+   
 
 
 def taboo_cells(warehouse):
@@ -378,21 +436,42 @@ class SokobanPuzzle(search.Problem):
            actions.append("left")
            
         return actions
-       
+   
+    
+        
         
         
     def result(self, state, action):
         """Return the state that results from executing the given
         action in the given state. The action must be one of
         self.actions(state)."""
-        raise NotImplementedError
-         
+        #raise NotImplementedError
+        # index of the blank
+        next_state = list(state)  # Note that  next_state = state   would simply create an alias
+        i_worker = state.worker  # index of the blank tile
+        assert action in self.actions(state)  # defensive programming!
         
-    def goal_test(self, state):
+        if action == 'up':
+            i_worker = tuple(i_worker(0), i_worker(1) - 1)
+        elif action == 'down':
+            i_worker = tuple(i_worker(0), i_worker(1) + 1)
+        elif action == 'left':
+            i_worker = tuple(i_worker(0) - 1, i_worker(1))
+        elif action == 'right':
+            i_worker = tuple(i_worker(0) + 1, i_worker(1))
+        
+        next_state.worker = i_worker
+        
+        return tuple(next_state)
+        
+    def goal_test(self, state, goal_coords = None):
         """Return True if the state is a goal. The default method compares the
         state to self.goal, as specified in the constructor. Override this
         method if checking against a single self.goal is not enough."""
-        return state == self.goal
+        if goal_coords:
+            return state.worker == goal_coords
+        else:
+            return state == self.goal
 
     def path_cost(self, c, state1, action, state2):
         """Return the cost of a solution path that arrives at state2 from
@@ -405,13 +484,16 @@ class SokobanPuzzle(search.Problem):
     def value(self, state):
         """For optimization problems, each state has a value.  Hill-climbing
         and related algorithms try to maximize this value."""
-        raise NotImplementedError
-    
+        #raise NotImplementedError
+        return 1
   
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+
+
 def check_action_seq(warehouse, action_seq):
+   
     '''
     
     Determine if the sequence of actions listed in 'action_seq' is legal or not.
@@ -421,7 +503,6 @@ def check_action_seq(warehouse, action_seq):
       - an action is legal even if it pushes a box onto a taboo cell.
         
     @param warehouse: a valid Warehouse object
-
     @param action_seq: a sequence of legal actions.
            For example, ['Left', 'Down', Down','Right', 'Up', 'Down']
            
@@ -434,12 +515,81 @@ def check_action_seq(warehouse, action_seq):
                the sequence of actions.  This must be the same string as the
                string returned by the method  Warehouse.__str__()
     '''
-    
-    ##         "INSERT YOUR CODE HERE"
-    
-    
-    
-    raise NotImplementedError()
+    for action in action_seq:
+        if action == 'Left':
+            #"Check if there's a box to the left"
+            if ((warehouse.worker[0] - 1), (warehouse.worker[1])) in warehouse.boxes:
+                #"Check if there's a box or wall to the left of that box"
+                if ((warehouse.worker[0] - 2, warehouse.worker[1]) in warehouse.boxes) or \
+                    ((warehouse.worker[0] - 2, warehouse.worker[1]) in warehouse.walls):
+                        return "Failure"
+                #"If there's empty space, move box and worker"
+                else:
+                    index = (warehouse.boxes).index((warehouse.worker[0]-1, warehouse.worker[1])) 
+                    warehouse.boxes[index] = (warehouse.worker[0]-2, warehouse.worker[1])
+                    warehouse.worker = (warehouse.worker[0]-1, warehouse.worker[1])
+            #Check if there's a wall
+            elif (warehouse.worker[0]-1, warehouse.worker[1]) in warehouse.walls:
+                return "Failure"
+            #"If it's just empty space, move worker to left"
+            else:
+                warehouse.worker = (warehouse.worker[0]-1, warehouse.worker[1])
+        if action == 'Right':
+            #"Check if there's a box to the right"
+            if ((warehouse.worker[0] + 1), (warehouse.worker[1])) in warehouse.boxes:
+                #"Check if there's a box or wall to the right of that box"
+                if ((warehouse.worker[0] + 2, warehouse.worker[1]) in warehouse.boxes) or \
+                    ((warehouse.worker[0] + 2, warehouse.worker[1]) in warehouse.walls):
+                        return "Failure"
+                #"If there's empty space, move box and worker"
+                else:
+                    index = (warehouse.boxes).index((warehouse.worker[0] + 1, warehouse.worker[1])) 
+                    warehouse.boxes[index] = (warehouse.worker[0] + 2, warehouse.worker[1])
+                    warehouse.worker = (warehouse.worker[0] + 1, warehouse.worker[1])
+            #Check if there's a wall
+            elif (warehouse.worker[0]+1, warehouse.worker[1]) in warehouse.walls:
+                return "Failure"
+            #"If it's just empty space, move worker to left"
+            else:
+                warehouse.worker = (warehouse.worker[0]+1, warehouse.worker[1])
+        if action == 'Up':
+            #"Check if there's a box above the worker"
+            if ((warehouse.worker[0]), (warehouse.worker[1] - 1)) in warehouse.boxes:
+                #"Check if there's a box or wall above that box"
+                if (warehouse.worker[0], warehouse.worker[1] - 2) in warehouse.boxes or \
+                    (warehouse.worker[0], warehouse.worker[1] - 2) in warehouse.walls:
+                        return "Failure"
+                #"If there's empty space, move box and worker"
+                else:
+                    index = (warehouse.boxes).index((warehouse.worker[0], warehouse.worker[1] - 1))
+                    warehouse.boxes[index] = (warehouse.worker[0], warehouse.worker[1] - 2)
+                    warehouse.worker = (warehouse.worker[0], warehouse.worker[1] - 1)
+            #Check if there's a wall
+            elif (warehouse.worker[0], warehouse.worker[1]-1) in warehouse.walls:
+                return "Failure"
+            #"If it's just empty space, move worker to left"
+            else:
+                warehouse.worker = (warehouse.worker[0], warehouse.worker[1]-1)
+        if action == 'Down':
+            #"Check if there's a box above the worker"
+            if ((warehouse.worker[0]), (warehouse.worker[1] + 1)) in warehouse.boxes:
+                #"Check if there's a box or wall above that box"
+                if (warehouse.worker[0], warehouse.worker[1] + 2) in warehouse.boxes or \
+                    (warehouse.worker[0], warehouse.worker[1] + 2) in warehouse.walls:
+                        return "Failure"
+                #"If there's empty space, move box and worker"
+                else:
+                    index = (warehouse.boxes).index((warehouse.worker[0], warehouse.worker[1] + 1))
+                    warehouse.boxes[index] = (warehouse.worker[0], warehouse.worker[1] + 2)
+                    warehouse.worker = (warehouse.worker[0], warehouse.worker[1] + 1)
+            #Check if there's a wall
+            elif (warehouse.worker[0], warehouse.worker[1]+1) in warehouse.walls:
+                return "Failure"
+            #"If it's just empty space, move worker to left"
+            else:
+                warehouse.worker = (warehouse.worker[0], warehouse.worker[1]+1)
+                
+    return warehouse.__str__()
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -461,7 +611,7 @@ def solve_sokoban_elem(warehouse):
     
     ##         "INSERT YOUR CODE HERE"
     
-    raise NotImplementedError()
+    search.breadth_first_tree_search(warehouse)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -483,9 +633,24 @@ def can_go_there(warehouse, dst):
     # Call calculate_path for warehouses and store in variable
     
     path_options = calculate_path(warehouse, dst)
-    
+    valid_paths = []
+    is_failure = False
     # loop through path options and check legality, then check if boxes moved
-    
+    for path in path_options :
+        for box in warehouse.boxes :
+            if path == box:
+                is_failure = True
+        if is_failure == False:
+            valid_paths.append(path)
+        is_failure = False    
+        
+    if valid_paths  :
+        return True
+    else :
+        return False
+
+                
+                
     # 
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -498,9 +663,9 @@ def calculate_path(warehouse, dst):
     
     Return false if no paths available
     ''' 
-    
-    raise NotImplementedError()
-
+    return search.breadth_first_graph_search_subfunc(warehouse, dst)
+        
+        
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def solve_sokoban_macro(warehouse):
