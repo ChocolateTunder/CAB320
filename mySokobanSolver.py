@@ -35,112 +35,12 @@ def my_team():
     of triplet of the form (student_number, first_name, last_name)
     
     '''
-    return [ (9683836, 'Rafael', 'Alves'), (1234568, 'Grace', 'Hopper'), (1234569, 'Eva', 'Tardos') ]
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#This class represents a directed graph  
-# using adjacency list representation 
-class Graph: 
-    
-    paths = []
-    
-    def __init__(self,vertices): 
-        #No. of vertices 
-        self.V= vertices  
-          
-        # default dictionary to store graph 
-        self.graph = defaultdict(list)  
-   
-    # function to add an edge to graph 
-    def addEdge(self,u,v): 
-        self.graph[u].append(v) 
-   
-    '''A recursive function to print all paths from 'u' to 'd'. 
-    visited[] keeps track of vertices in current path. 
-    path[] stores actual vertices and path_index is current 
-    index in path[]'''
-    def printAllPathsUtil(self, u, d, visited, path): 
-  
-        # Mark the current node as visited and store in path 
-        visited.append(u)
-        path.append(u) 
-        
-        # If current vertex is same as destination, then print 
-        # current path[] 
-        if u == d: 
-            self.paths.append(path)
-        else: 
-            # If current vertex is not destination 
-            #Recur for all the vertices adjacent to this vertex 
-            for i in self.graph[u]: 
-                if visited[i]==False: 
-                    self.printAllPathsUtil(i, d, visited, path) 
-                      
-        # Remove current vertex from path[] and mark it as unvisited 
-        path.pop() 
-        visited.remove(u)
-        
-   
-   
-    # Prints all paths from 's' to 'd' 
-    def printAllPaths(self,s, d): 
-  
-        # Mark all the vertices as not visited 
-        visited =[False]*(self.V) 
-  
-        # Create an array to store paths 
-        path = [] 
-  
-        # Call the recursive helper function to print all paths 
-        self.printAllPathsUtil(s, d,visited, path) 
-   
-   
-
+#    return [ (9683836, 'Rafael', 'Alves'), (1234568, 'Grace', 'Hopper'), (1234569, 'Eva', 'Tardos') ]
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-""" Search overrides for can_go_there() function """
 
 
-def graph_search_subfunc(problem, frontier, goal_coords):
-    """
-    Search through the successors of a problem to find a goal.
-    The argument frontier should be an empty queue.
-    If two paths reach a state, only use the first one. [Fig. 3.7]
-    Return
-        the node of the first goal state found
-        or None is no goal state is found
-    """
-    paths = []
-    assert isinstance(problem, Problem)
-    frontier.append(search.Node(problem.initial))
-    explored = set() # initial empty set of explored states
-    i = 0
-    while frontier and i < 200:
-        node = frontier.pop()
-        if problem.goal_test(node.state, goal_coords):
-            paths.append(node)
-            frontier.clear()
-            frontier.append(search.Node(problem.initial))
-        explored.add(node.state)
-        # Python note: next line uses of a generator
-        frontier.extend(child for child in node.expand(problem)
-                        if child.state not in explored
-                        and child not in frontier)
-        i = i + 1
-    if paths:
-        return paths
-    else:
-        return None
-
-
-def breadth_first_graph_search_subfunc(problem, goal_coords):
-    "Graph search version of BFS.  [Fig. 3.11]"
-    return graph_search_subfunc(problem, search.FIFOQueue(), goal_coords)
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    
 def taboo_cells(warehouse):
     '''  
     Identify the taboo cells of a warehouse. A cell inside a warehouse is 
@@ -176,14 +76,13 @@ def taboo_cells(warehouse):
             else:
                 vis[y][x] = " "
             
-    "Begin taboo code"
-    row = []
-    column = []
-    started = False
+    #Begin taboo code
     inside = [[False] * x_size for y in range(y_size)]
+    column = []
+    row = []
     i = 0
-    
-    "Creates a list with coordinates of empty squares"
+
+    #Creates a list with coordinates of empty squares
     for line in vis:
         j = 0
         for place in line:
@@ -192,66 +91,197 @@ def taboo_cells(warehouse):
                 row.append(i)
             j += 1
         i += 1
-        
-    "Checks if squares are within warehouse walls"
-    "2 run throughs seems to tag everything"
-    for i in range(0,2):
-        for x in range(max(X)):
-            for y in range(max(Y)):
-                "Tag first top left corner as inside"
-                if (vis[y-1][x] == "#" and vis[y][x-1] == "#" and \
-                started == False):
-                    started = True
-                    inside[y][x] = True
-                "Targets are assumed to be inside"
-                if vis[y][x] == ".":
-                    inside[y][x] = True
-                "Check if surroundings are inside"
-                if vis[y][x] != "#":
-                    if(inside[y-1][x] == True or \
-                       inside[y][x-1] == True or \
-                       inside[y+1][x] == True or \
-                       inside[y][x+1] == True or inside[y-1][x-1] == True or \
-                       inside[y-1][x+1] == True or inside[y+1][x-1] == True or \
-                       inside[y+1][x+1] == True):
-                        inside[y][x] = True
-        i += 1
-        
-    for i in row:
-        for j in column:
-            if vis[i][j] == " ": 
-                "Check if space is a corner"
-                if (vis[i-1][j] == "#" or vis[i+1][j] == "#") and \
-                    (vis[i][j-1] == "#" or vis[i][j+1] == "#") and \
-                     inside[i][j] == True:
-                     vis[i][j] = "X"
-                "Check if at end of tunnel"
-                if (((vis[i-1][j] == "#" and vis[i+1][j] == "#") and \
-                     (vis[i][j-1] == "#" or vis[i][j+1] == "#")) or \
-                   ((vis[i][j-1] == "#" and vis[i][j+1] == "#")) and \
-                    (vis[i+1][j] == "#" or vis[i-1][j] == "#") and \
-                     inside[i][j] == True):
-                     vis[i][j] = "X"
-                     
-    "Have to blank out targets in other loop or it doesn't work"                 
-    for i in row:
-        for j in column:
-            if vis[i][j] == ".":
-                vis[i][j] = " "    
-    """
-    'Test to see if all cells are tagged as inside'                
-    for i in row:
-        for j in column:
-            if inside[i][j] == True:
-                vis[i][j] = "O"
-    """
     
-    """use vis = "\n".join(["".join(line) for line in vis]) and print vis"""
-    "To get rid of literal /n in string"            
+    mark_inside(vis, inside, x_size, y_size, warehouse.worker[0], warehouse.worker[1])
+    
+    for i in range(x_size-1):
+        for j in range(y_size-1):
+            if vis[j][i] == " ": 
+                "Check if space is a corner"
+                if (vis[j-1][i] == "#" or vis[j+1][i] == "#") and \
+                    (vis[j][i-1] == "#" or vis[j][i+1] == "#") and \
+                     inside[j][i] == True:
+                     vis[j][i] = "X"
+    
+    for (x,y) in warehouse.targets:
+        web_slinger(vis, inside, x, y, x_size, y_size)
+    
+    for (x,y) in warehouse.walls:
+        wall_crawler(vis, inside, x, y, x_size, y_size)
+
+        if x+1 < x_size:
+            if vis[y][x+1] != "S" and inside[y][x+1] == True:
+                vis[y][x+1] = "X"
+        if x-1 >= 0:
+            if vis[y][x-1] != "S" and inside[y][x-1] == True:
+                vis[y][x-1] = "X"
+        if y+1 < y_size:
+            if vis[y+1][x] != "S" and inside[y+1][x] == True:
+                vis[y+1][x] = "X"
+        if y-1 >= 0:
+            if vis[y-1][x] != "S" and inside[y-1][x] == True:
+                vis[y-1][x] = "X"
+    #Clean up warehouse, leave only X and #
+    for i in row:
+        for j in column:
+            if vis[i][j] == "." or vis[i][j] == "S":
+                vis[i][j] = " " 
+    #"""use vis = "\n".join(["".join(line) for line in vis]) and print vis"""
+    #"To get rid of literal /n in string"            
     return "\n".join(["".join(line) for line in vis])
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#Recursive function
+def mark_inside(warestring, array, X, Y, i, j):
+    if (i<0 or i >= X or j < 0 or j >= Y):
+        return 
+    if (array[j][i] == True) or (warestring[j][i] == "#"):
+        return
 
+    array[j][i] = True
+
+    if i+1 < X:
+        if warestring[j][i+1] != "#":
+            mark_inside(warestring, array, X, Y, i+1,j)
+    if i-1 > 0:
+        if warestring[j][i-1] != "#":
+            mark_inside(warestring, array, X, Y, i-1,j)
+    if j+1 < Y:
+        if warestring[j+1][i] != "#":
+            mark_inside(warestring, array, X, Y, i,j+1)
+    if j-1 > 0:
+        if warestring[j-1][i] != "#":
+            mark_inside(warestring, array, X, Y, i,j-1)
+
+def web_slinger(warestring, inside, x, y, x_size, y_size):
+    #Extend to the right except for last square
+    if x < 0 or x >= x_size or y < 0 or y >= y_size:
+        return
+    
+    if warestring[y][x-1] != "#":
+        i = 0
+        while warestring[y][x-(i)] != "#" and warestring[y][x-(i)] != "X":
+                warestring[y][x-i] = "S"
+                i += 1
+    if warestring[y][x+1] != "#":
+        i = 0
+        while warestring[y][x+(i)] != "#" and warestring[y][x+(i)] != "X":
+                warestring[y][x+i] = "S"
+                i += 1
+    if warestring[y-1][x] != "#":
+        i = 0
+        while warestring[y-(i)][x] != "#" and warestring[y-(i)][x] != "X":
+                warestring[y-i][x] = "S"
+                i += 1
+    if warestring[y+1][x] != "#":
+        i = 0
+        while warestring[y+(i)][x] != "#" and warestring[y+(i)][x] != "X":
+                warestring[y+i][x] = "S"
+                i += 1
+
+def wall_crawler(warestring, inside, x, y, x_size, y_size):
+    #Check if it's within bounds
+    if x+1 < x_size and x-1 >=0 and y+1 < y_size and y-1 > 0:
+        #Check if wall is a corner pointing inwards from top left
+        if (warestring[y][x+1] != "#" and inside[y][x+1] == True) and\
+        (warestring[y+1][x] != "#" and inside [y+1][x] == True) and\
+        warestring[y-1][x] == "#" and warestring[y][x-1] == "#":
+            #If it isn't adjacent to taboo cell, mark it as safe and extend it
+            if warestring[y+1][x] != "X":
+                warestring[y+1][x] = "S"
+                i = 0
+                #Extend left
+                if warestring[y+1][x-i] != "#" or warestring[y+1][x-i] != "X":
+                    while warestring[y+1][x-(i+1)] != "#":
+                        warestring[y+1][x-i] = "S"
+                        i += 1
+                        if x-i+1 <= 0:
+                            break
+            if warestring[y][x+1] != "X":
+                warestring[y][x+1] = "S"
+                i = 0
+                #Extend up
+                if warestring[y-i][x+1] != "#" or warestring[y-i][x+1] != "X":   
+                    while warestring[y-(i+1)][x+1] != "#":
+                        warestring[y-i][x+1] = "S"
+                        i += 1
+                        if y-i+1 <= 0:
+                            break
+                        
+        #Check if wall is a corner pointing inwards from top right
+        if (warestring[y][x-1] != "#" and inside[y][x-1] == True) and\
+        (warestring[y+1][x] != "#" and inside[y+1][x] == True) and\
+        warestring[y-1][x] == "#" and warestring[y][x+1] == "#":
+            if warestring[y+1][x] != "X":
+                warestring[y+1][x] = "S"
+                i = 0
+                #Extend right
+                if warestring[y+1][x+i] != "#" or warestring[y+1][x+i] != "X":
+                    while warestring[y+1][x+i+1] != "#": 
+                        warestring[y+1][x+i] = "S"
+                        i += 1
+                        if x+i+1 >= x_size:
+                            break
+            if warestring[y][x-1] != "X":
+                warestring[y][x-1] = "S"
+                i = 0
+                #Extend up
+                if warestring[y-i][x-1] !="#" or warestring[y-i][x-1] != "X":
+                    while warestring[y-(i+1)][x-1] != "#":
+                        warestring[y-i][x-1] = "S"
+                        i += 1
+                        if y-i-1 <= 0:
+                            break
+    
+        #Check if wall is a corner pointing inwards from bottom left
+        if (warestring[y][x+1] != "#" and inside[y][x+1] == True) and\
+        (warestring[y-1][x] != "#" and inside[y-1][x] == True) and\
+        warestring[y+1][x] == "#" and warestring[y][x-1] == "#":
+            if warestring[y-1][x] != "X":
+                warestring[y-1][x] = "S"
+                i = 0
+                #Extend left
+                if warestring[y-1][x-i] != "#" or warestring[y-1][x-i] != "X":
+                    while warestring[y-1][x-(i+1)] != "#":
+                        warestring[y-1][x-i] = "S"
+                        i += 1
+                        if x-i+1 <= 0:
+                            break
+            if warestring[y][x+1] != "X":
+                warestring[y][x+1] = "S"
+                i = 0
+                #Extend down
+                if warestring[y+i][x+1] !="#" or warestring[y+i][x+1] != "X":
+                    while warestring[y+(i+1)][x+1] != "#":
+                        warestring[y+i][x+1] = "S"
+                        i += 1
+                        if y+i+1 >= y_size:
+                            break
+        
+        #Check if wall is a corner pointing inwards from bottom right
+        if (warestring[y][x-1] != "#" and inside[y][x-1] == True) and\
+        (warestring[y-1][x] != "#" and inside[y-1][x] == True) and\
+        warestring[y+1][x] == "#" and warestring[y][x+1] == "#":
+            if warestring[y-1][x] != "X":
+                warestring[y-1][x] = "S"
+                i = 0
+                #Extend right
+                if warestring[y-1][x+i] != "#" or warestring[y-1][x+i] != "X":
+                    while warestring[y-1][x+(i+1)] != "#":
+                        warestring[y-1][x+i] = "S"
+                        i += 1
+                        if x+i+1 >= x_size:
+                            break
+            if warestring[y][x-1] != "X":
+                warestring[y][x-1] = "S"
+                i = 0
+                #Extend down
+                if warestring[y+i][x-1] !="#" or warestring[y+i][x-1] != "X":
+                    while warestring[y+(i+1)][x-1] != "#":
+                        warestring[y+i][x-1] = "S"
+                        i += 1
+                        if y+i+1 >= y_size:
+                            break
+    
 class SokobanPuzzle(search.Problem):
     '''
     An instance of the class 'SokobanPuzzle' represents a Sokoban puzzle.
@@ -287,37 +317,8 @@ class SokobanPuzzle(search.Problem):
 
     
     def __init__(self, warehouse):
-        self.allow_taboo_push = False
-        self.macro = False
-        self.initial = warehouse.__str__()
-        self.goal = self.createGoalState(warehouse)
-        
-    def createGoalState(self, warehouse):
-        X,Y = zip(*warehouse.walls)
-        x_size, y_size = 1+max(X), 1+max(Y)
-        vis = [[" "] * x_size for y in range(y_size)]
-        for (x,y) in warehouse.walls:
-            vis[y][x] = "#"
-        for (x,y) in warehouse.targets:
-            vis[y][x] = "$"
-        vis[warehouse.worker[1]][warehouse.worker[0]] = " "
-        for (x,y) in warehouse.boxes:
-            vis[y][x] = " "
+        raise NotImplementedError()
 
-        row = []
-        column = []
-        i = 0
-        for line in vis:
-            j = 0
-            for place in line:
-                if place == " " and j > 0 and i > 0 and j < max(X) and i < max(Y):
-                    column.append(j)
-                    row.append(i)
-                j += 1
-            i += 1     
-            
-        return "\n".join(["".join(line) for line in vis])
-    
     def actions(self, state):
         """
         Return the list of actions that can be executed in the given state.
@@ -326,187 +327,8 @@ class SokobanPuzzle(search.Problem):
         'self.allow_taboo_push' and 'self.macro' should be tested to determine
         what type of list of actions is to be returned.
         """
-        
-        taboo_map = taboo_cells(state)
-        # Get list of taboo cell locations
-        taboo = list(sokoban.find_2D_iterator(taboo_map, "X")) # taboo cell
-        
-        # Get list of box locations
-        boxes = state.boxes
-        
-        # Get location of worker
-        worker = state.worker
-        
-        # Get locations of walls
-        walls = state.walls
-        
-        nexto_boxes = []
-        abv_bel_boxes = []
-        
-        actions = []
-        no_up = False
-        no_down = False
-        no_left = False
-        no_right = False
-        
-    
-        # Test for adjacent boxes
-        for i in range(0, len(boxes)):
-            # Test box next to worker
-            if abs(boxes[i][0] - worker[0]) == 1:
-                nexto_boxes.append(boxes[i])
-            # Test box above or below worker
-            elif abs(boxes[i][1] - worker[1]) == 1:
-                abv_bel_boxes.append(boxes[i])
-        
-
-        # Test if any boxes above or below
-        if abv_bel_boxes:
-            for i in range(0, len(abv_bel_boxes)):
-                # Box above
-                if (abv_bel_boxes[i][1] < worker[1]):
-                    # Test taboo cell above box
-                    for j in range(0 , len(taboo)):
-                        # find correct x coordinate and test if directly above
-                        if abv_bel_boxes[i][0] == taboo[j][0] and abv_bel_boxes[i][1] - 1 == taboo[j][1]:
-                            # Test internal variable
-                            if self.allow_taboo_push == False:
-                                no_up = True
-                            else:
-                                no_up = False
-                    # test wall directly above box
-                    for j in range(0, len(walls)):
-                        # Test wall directly above box
-                        if abv_bel_boxes[i][1] - 1 == walls[j][1] and abv_bel_boxes[i][0] == walls[j][0]:
-                            no_up = True
-                            
-                    # Test if another box above current box
-                    for j in range(0, len(boxes)):
-                        if abv_bel_boxes[i][1] - 1 == boxes[j][1] and abv_bel_boxes[i][0] == boxes[j][0]:
-                            no_up = True
-                            
-                        
-                # Test box below worker
-                elif abv_bel_boxes[i][1] > worker[1]:
-                    for j in range(0 , len(taboo)):
-                        # find correct x coordinate and test if directly below
-                        if abv_bel_boxes[i][0] == taboo[j][0] and abv_bel_boxes[i][1] + 1 == taboo[j][1]:
-                            # Test internal variable
-                            if self.allow_taboo_push == False:
-                                no_down = True
-                            else:
-                                no_down = False
-                    # Test if box directly above wall
-                    for j in range(0, len(walls)):
-                        if abv_bel_boxes[i][1] + 1 == walls[j][1] and abv_bel_boxes[i][0] == walls[j][0]:
-                            no_down = True
-                    # Test if box directly above another box
-                    for j in range(0, len(boxes)):
-                        if abv_bel_boxes[i][1] + 1 == boxes[j][1] and abv_bel_boxes[i][0] ==  boxes[j][0]:
-                            no_down = True
-                    
-                    
-                
-        # If there are any adjacent boxes
-        if nexto_boxes:
-            for i in range(0, len(nexto_boxes)):
-                # Test box to the left of worker
-                if (nexto_boxes[i][0] < worker[0]):
-                    # Test taboo cell to the left of box
-                    for j in range(0, len(taboo)):
-                        # Find correct y coordinate and test if directly to the left of box
-                        if nexto_boxes[i][1] == taboo[j][1] and nexto_boxes[i][0] - 1 == taboo[j][0]:
-                            # Test internal taboo variable
-                            if self.allow_taboo_push == False:
-                                no_left = True
-                            else:
-                                no_left = False
-                    # Test if wall directly to left of box
-                    for j in range(0, len(walls)):
-                        if nexto_boxes[i][0] - 1 == walls[j][0] and nexto_boxes[i][1] == walls[j][1]:
-                            no_right = True 
-                    # Test if another box directly to left of box
-                    for j in range(0, len(boxes)):
-                        if nexto_boxes[i][0] - 1 == boxes[j][0] and nexto_boxes[i][1] == boxes[j][1]:
-                            no_right = True
-                            
-                # Test box to the right of worker
-                elif nexto_boxes[i][0] > worker[0]:
-                    # Test taboo cell to the right of the box
-                    for j in range(0, len(taboo)):
-                        # Find correct y coordinate and test if directly to the right of box
-                        if nexto_boxes[i][1] == taboo[j][1] and nexto_boxes[i][0] + 1 == taboo[j][0]:
-                            # test internal taboo variable
-                            if self.allow_taboo_push == False:
-                                no_right = True
-                            else:
-                                no_right = False
-                    # Test if wall directly to right of box
-                    for j in range(0, len(walls)):
-                        if nexto_boxes[i][0] + 1 == walls[j][0] and nexto_boxes[i][1] == walls[j][1]:
-                            no_down = True
-                    # Test if another box directly to the right of the box
-                    for j in range(0, len(walls)):
-                        if nexto_boxes[i][0] + 1 == boxes[j][0] and nexto_boxes[i][1] == boxes[j][1]:
-                            no_down = True
-        
-        # Test worker next to wall
-        for i in range(0, len(walls)):
-            # test if worker to the left of a wall
-            if worker[0] - 1 == walls[i][0] and worker[1] == walls[i][1]:
-                no_right = True
-            # Test worker to the right of a wall
-            if worker[0] + 1 == walls[i][0] and worker[1] == walls[i][1]:
-                no_left = True
-            # Test if worker below wall
-            if worker[1] - 1 == walls[i][1] and worker[0] == walls[i][0]:
-                no_up = True
-            # Test if worker above wall
-            if worker[1] + 1 == walls[i][1] and worker[0] == walls[i][0]:
-                no_down = True
-                
-        
-        if no_up == False:
-            actions.append("up")
-        if no_down == False:
-            actions.append("down")
-        if no_right == False:
-            actions.append("right")
-        if no_left == False:
-           actions.append("left")
-           
-        return actions        
-        
-        
-    def result(self, state, action):
-        """Return the state that results from executing the given
-        action in the given state. The action must be one of
-        self.actions(state)."""
         raise NotImplementedError
-         
-        
-    def goal_test(self, state, goal_coords = None):
-        """Return True if the state is a goal. The default method compares the
-        state to self.goal, as specified in the constructor. Override this
-        method if checking against a single self.goal is not enough."""
-        if goal_coords:
-            return state.worker == goal_coords
-        else:
-            return state == self.goal
 
-    def path_cost(self, c, state1, action, state2):
-        """Return the cost of a solution path that arrives at state2 from
-        state1 via action, assuming cost c to get up to state1. If the problem
-        is such that the path doesn't matter, this function will only look at
-        state2.  If the path does matter, it will consider c and maybe state1
-        and action. The default method costs 1 for every step in the path."""
-        return c + 1
-
-    def value(self, state):
-        """For optimization problems, each state has a value.  Hill-climbing
-        and related algorithms try to maximize this value."""
-        raise NotImplementedError
-    
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def check_action_seq(warehouse, action_seq):
@@ -532,81 +354,12 @@ def check_action_seq(warehouse, action_seq):
                the sequence of actions.  This must be the same string as the
                string returned by the method  Warehouse.__str__()
     '''
-    for action in action_seq:
-        if action == 'Left':
-            #"Check if there's a box to the left"
-            if ((warehouse.worker[0] - 1), (warehouse.worker[1])) in warehouse.boxes:
-                #"Check if there's a box or wall to the left of that box"
-                if ((warehouse.worker[0] - 2, warehouse.worker[1]) in warehouse.boxes) or \
-                    ((warehouse.worker[0] - 2, warehouse.worker[1]) in warehouse.walls):
-                        return "Failure"
-                #"If there's empty space, move box and worker"
-                else:
-                    index = (warehouse.boxes).index((warehouse.worker[0]-1, warehouse.worker[1])) 
-                    warehouse.boxes[index] = (warehouse.worker[0]-2, warehouse.worker[1])
-                    warehouse.worker = (warehouse.worker[0]-1, warehouse.worker[1])
-            #Check if there's a wall
-            elif (warehouse.worker[0]-1, warehouse.worker[1]) in warehouse.walls:
-                return "Failure"
-            #"If it's just empty space, move worker to left"
-            else:
-                warehouse.worker = (warehouse.worker[0]-1, warehouse.worker[1])
-        if action == 'Right':
-            #"Check if there's a box to the right"
-            if ((warehouse.worker[0] + 1), (warehouse.worker[1])) in warehouse.boxes:
-                #"Check if there's a box or wall to the right of that box"
-                if ((warehouse.worker[0] + 2, warehouse.worker[1]) in warehouse.boxes) or \
-                    ((warehouse.worker[0] + 2, warehouse.worker[1]) in warehouse.walls):
-                        return "Failure"
-                #"If there's empty space, move box and worker"
-                else:
-                    index = (warehouse.boxes).index((warehouse.worker[0] + 1, warehouse.worker[1])) 
-                    warehouse.boxes[index] = (warehouse.worker[0] + 2, warehouse.worker[1])
-                    warehouse.worker = (warehouse.worker[0] + 1, warehouse.worker[1])
-            #Check if there's a wall
-            elif (warehouse.worker[0]+1, warehouse.worker[1]) in warehouse.walls:
-                return "Failure"
-            #"If it's just empty space, move worker to left"
-            else:
-                warehouse.worker = (warehouse.worker[0]+1, warehouse.worker[1])
-        if action == 'Up':
-            #"Check if there's a box above the worker"
-            if ((warehouse.worker[0]), (warehouse.worker[1] - 1)) in warehouse.boxes:
-                #"Check if there's a box or wall above that box"
-                if (warehouse.worker[0], warehouse.worker[1] - 2) in warehouse.boxes or \
-                    (warehouse.worker[0], warehouse.worker[1] - 2) in warehouse.walls:
-                        return "Failure"
-                #"If there's empty space, move box and worker"
-                else:
-                    index = (warehouse.boxes).index((warehouse.worker[0], warehouse.worker[1] - 1))
-                    warehouse.boxes[index] = (warehouse.worker[0], warehouse.worker[1] - 2)
-                    warehouse.worker = (warehouse.worker[0], warehouse.worker[1] - 1)
-            #Check if there's a wall
-            elif (warehouse.worker[0], warehouse.worker[1]-1) in warehouse.walls:
-                return "Failure"
-            #"If it's just empty space, move worker to left"
-            else:
-                warehouse.worker = (warehouse.worker[0], warehouse.worker[1]-1)
-        if action == 'Down':
-            #"Check if there's a box above the worker"
-            if ((warehouse.worker[0]), (warehouse.worker[1] + 1)) in warehouse.boxes:
-                #"Check if there's a box or wall above that box"
-                if (warehouse.worker[0], warehouse.worker[1] + 2) in warehouse.boxes or \
-                    (warehouse.worker[0], warehouse.worker[1] + 2) in warehouse.walls:
-                        return "Failure"
-                #"If there's empty space, move box and worker"
-                else:
-                    index = (warehouse.boxes).index((warehouse.worker[0], warehouse.worker[1] + 1))
-                    warehouse.boxes[index] = (warehouse.worker[0], warehouse.worker[1] + 2)
-                    warehouse.worker = (warehouse.worker[0], warehouse.worker[1] + 1)
-            #Check if there's a wall
-            elif (warehouse.worker[0], warehouse.worker[1]+1) in warehouse.walls:
-                return "Failure"
-            #"If it's just empty space, move worker to left"
-            else:
-                warehouse.worker = (warehouse.worker[0], warehouse.worker[1]+1)
-                
-    return warehouse.__str__()
+    
+    ##         "INSERT YOUR CODE HERE"
+    
+    raise NotImplementedError()
+
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def solve_sokoban_elem(warehouse):
@@ -642,39 +395,10 @@ def can_go_there(warehouse, dst):
       False otherwise
     '''
     
-    
     ##         "INSERT YOUR CODE HERE"
     
-    # Call calculate_path for warehouses and store in variable
-    
-    path_options = calculate_path(warehouse, dst)
-    valid_paths = []
-    is_failure = False
-    # loop through path options and check legality, then check if boxes moved
-    for path in path_options :
-        for box in warehouse.boxes :
-            if path == box:
-                is_failure = True
-        if is_failure == False:
-            valid_paths.append(path)
-        is_failure = False    
-        
-    if valid_paths  :
-        return True
-    else :
-        return False
+    raise NotImplementedError()
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-def calculate_path(warehouse, dst):
-    '''
-    Calculate all path options of worker to destination
-    
-    Return list of elementary actions needed for each path
-    
-    Return false if no paths available
-    ''' 
-    return breadth_first_graph_search_subfunc(warehouse, dst)
-        
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def solve_sokoban_macro(warehouse):
